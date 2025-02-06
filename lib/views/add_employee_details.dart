@@ -11,12 +11,18 @@ class AddEmployeeDetails extends StatefulWidget {
 class _AddEmployeeDetailsState extends State<AddEmployeeDetails> {
   String? selectedRole;
   DateTime? selectedDate;
+  DateTime? selectedEndDate;
   final TextEditingController _nameController = TextEditingController();
 
   @override
   void dispose() {
     _nameController.dispose();
     super.dispose();
+  }
+
+  DateTime getNextMonday() {
+    DateTime now = DateTime.now();
+    return now.add(Duration(days: (DateTime.monday - now.weekday + 7) % 7));
   }
 
   @override
@@ -97,6 +103,7 @@ class _AddEmployeeDetailsState extends State<AddEmployeeDetails> {
               controller: TextEditingController(text: selectedRole),
               decoration: InputDecoration(
                 labelText: selectedRole?.isEmpty ?? true ? 'Select role' : '',
+                labelStyle: TextStyle(color: kgrey),
                 prefixIcon: Icon(Icons.work_outline_outlined, color: kdarkBlue),
                 suffixIcon: Icon(Icons.arrow_drop_down, color: kdarkBlue),
                 contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
@@ -115,9 +122,377 @@ class _AddEmployeeDetailsState extends State<AddEmployeeDetails> {
             ),
             const SizedBox(height: 16),
             
-            //Date Selectors
-            
-            
+            // Date Selectors
+            Row(
+              children: [
+                Expanded(
+                  child: TextFormField(
+                    readOnly: true,
+                    onTap: () async {
+                      final DateTime? picked = await showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          DateTime? tempSelectedDate = selectedDate ?? DateTime.now();
+                          return Dialog(
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(vertical: 8.0),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                    children: [
+                                      TextButton(
+                                        onPressed: () {
+                                          tempSelectedDate = DateTime.now();
+                                          Navigator.pop(context, tempSelectedDate);
+                                        },
+                                        style: TextButton.styleFrom(
+                                          backgroundColor: Colors.blue.shade50,
+                                          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(8),
+                                          ),
+                                        ),
+                                        child: Text('Today', style: TextStyle(color: kdarkBlue)),
+                                      ),
+                                      TextButton(
+                                        onPressed: () {
+                                          tempSelectedDate = getNextMonday();
+                                          Navigator.pop(context, tempSelectedDate);
+                                        },
+                                        style: TextButton.styleFrom(
+                                          backgroundColor: Colors.blue.shade50,
+                                          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(8),
+                                          ),
+                                        ),
+                                        child: Text('Next Monday', style: TextStyle(color: kdarkBlue)),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                  children: [
+                                    TextButton(
+                                      onPressed: () {
+                                        final now = DateTime.now();
+                                        tempSelectedDate = now.add(const Duration(days: ((DateTime.tuesday - 1 + 7) % 7) + 7));
+                                        Navigator.pop(context, tempSelectedDate);
+                                      },
+                                      style: TextButton.styleFrom(
+                                        backgroundColor: Colors.blue.shade50,
+                                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(8),
+                                        ),
+                                      ),
+                                      child: Text('Next Tuesday', style: TextStyle(color: kdarkBlue)),
+                                    ),
+                                    TextButton(
+                                      onPressed: () {
+                                        tempSelectedDate = DateTime.now().add(const Duration(days: 7));
+                                        Navigator.pop(context, tempSelectedDate);
+                                      },
+                                      style: TextButton.styleFrom(
+                                        backgroundColor: Colors.blue.shade50,
+                                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(8),
+                                        ),
+                                      ),
+                                      child: Text('After 1 week', style: TextStyle(color: kdarkBlue)),
+                                    ),
+                                  ],
+                                ),
+                                SizedBox(
+                                  height: 400,
+                                  child: Theme(
+                                    data: Theme.of(context).copyWith(
+                                      colorScheme: Theme.of(context).colorScheme.copyWith(
+                                        primary: kdarkBlue,
+                                      ),
+                                    ),
+                                    child: StatefulBuilder(
+                                      builder: (context, setCalendarState) {
+                                        return CalendarDatePicker(
+                                          initialDate: tempSelectedDate,
+                                          firstDate: DateTime(2000),
+                                          lastDate: DateTime(2101),
+                                          onDateChanged: (DateTime date) {
+                                            tempSelectedDate = date;
+                                            setCalendarState(() {});
+                                            setState(() {});
+                                          },
+                                        );
+                                      },
+                                    ),
+                                  ),
+                                ),
+                                Divider(color: kgrey),
+                                StatefulBuilder(
+                                  builder: (context, setBottomState) {
+                                    return Padding(
+                                      padding: const EdgeInsets.all(10.0),
+                                      child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Row(
+                                            children: [
+                                              Icon(Icons.calendar_today_outlined, 
+                                                size: 20, 
+                                                color: kdarkBlue
+                                              ),
+                                              const SizedBox(width: 5),
+                                              Text(
+                                                "${tempSelectedDate!.day}/${tempSelectedDate!.month}/${tempSelectedDate!.year}",
+                                                style: TextStyle(color: kdarkBlue),
+                                              ),
+                                            ],
+                                          ),
+                                          Row(
+                                            children: [
+                                              TextButton(
+                                                onPressed: () => Navigator.pop(context),
+                                                child: Text('Cancel', style: TextStyle(color: kdarkBlue)),
+                                              ),
+                                              const SizedBox(width: 5),
+                                              ElevatedButton(
+                                                onPressed: () => Navigator.pop(context, tempSelectedDate),
+                                                style: ElevatedButton.styleFrom(
+                                                  backgroundColor: kdarkBlue,
+                                                ),
+                                                child: Text('Save', style: TextStyle(color: kwhite)),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                      );
+                      if (picked != null) {
+                        setState(() {
+                          selectedDate = picked;
+                        });
+                      }
+                    },
+                    decoration: InputDecoration(
+                      labelText: selectedDate == null ? 'Today' : '',
+                      prefixIcon: Icon(Icons.calendar_today_outlined, color: kdarkBlue),
+                      contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide(color: kgrey),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide(color: kgrey),
+                      ),
+                    ),
+                    controller: TextEditingController(
+                      text: selectedDate != null 
+                          ? "${selectedDate!.day}/${selectedDate!.month}/${selectedDate!.year}"
+                          : '',
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: TextFormField(
+                    readOnly: true,
+                    onTap: () async {
+                      final DateTime? picked = await showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          DateTime? tempSelectedDate = selectedEndDate ?? DateTime.now();
+                          return Dialog(
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(vertical: 8.0),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                    children: [
+                                      TextButton(
+                                        onPressed: () {
+                                          tempSelectedDate = DateTime.now();
+                                          Navigator.pop(context, tempSelectedDate);
+                                        },
+                                        style: TextButton.styleFrom(
+                                          backgroundColor: Colors.blue.shade50,
+                                          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(8),
+                                          ),
+                                        ),
+                                        child: Text('Today', style: TextStyle(color: kdarkBlue)),
+                                      ),
+                                      TextButton(
+                                        onPressed: () {
+                                          tempSelectedDate = getNextMonday();
+                                          Navigator.pop(context, tempSelectedDate);
+                                        },
+                                        style: TextButton.styleFrom(
+                                          backgroundColor: Colors.blue.shade50,
+                                          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(8),
+                                          ),
+                                        ),
+                                        child: Text('Next Monday', style: TextStyle(color: kdarkBlue)),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                  children: [
+                                    TextButton(
+                                      onPressed: () {
+                                        final now = DateTime.now();
+                                        tempSelectedDate = now.add(const Duration(days: ((DateTime.tuesday - 1 + 7) % 7) + 7));
+                                        Navigator.pop(context, tempSelectedDate);
+                                      },
+                                      style: TextButton.styleFrom(
+                                        backgroundColor: Colors.blue.shade50,
+                                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(8),
+                                        ),
+                                      ),
+                                      child: Text('Next Tuesday', style: TextStyle(color: kdarkBlue)),
+                                    ),
+                                    TextButton(
+                                      onPressed: () {
+                                        tempSelectedDate = DateTime.now().add(const Duration(days: 7));
+                                        Navigator.pop(context, tempSelectedDate);
+                                      },
+                                      style: TextButton.styleFrom(
+                                        backgroundColor: Colors.blue.shade50,
+                                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(8),
+                                        ),
+                                      ),
+                                      child: Text('After 1 week', style: TextStyle(color: kdarkBlue)),
+                                    ),
+                                  ],
+                                ),
+                                SizedBox(
+                                  height: 400,
+                                  child: Theme(
+                                    data: Theme.of(context).copyWith(
+                                      colorScheme: Theme.of(context).colorScheme.copyWith(
+                                        primary: kdarkBlue,
+                                      ),
+                                    ),
+                                    child: StatefulBuilder(
+                                      builder: (context, setCalendarState) {
+                                        return CalendarDatePicker(
+                                          initialDate: tempSelectedDate,
+                                          firstDate: DateTime(2000),
+                                          lastDate: DateTime(2101),
+                                          onDateChanged: (DateTime date) {
+                                            tempSelectedDate = date;
+                                            setCalendarState(() {});
+                                            setState(() {});
+                                          },
+                                        );
+                                      },
+                                    ),
+                                  ),
+                                ),
+                                Divider(color: kgrey),
+                                StatefulBuilder(
+                                  builder: (context, setBottomState) {
+                                    return Padding(
+                                      padding: const EdgeInsets.all(10.0),
+                                      child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Row(
+                                            children: [
+                                              Icon(Icons.calendar_today_outlined, 
+                                                size: 20, 
+                                                color: kdarkBlue
+                                              ),
+                                              const SizedBox(width: 5),
+                                              Text(
+                                                "${tempSelectedDate!.day}/${tempSelectedDate!.month}/${tempSelectedDate!.year}",
+                                                style: TextStyle(color: kdarkBlue),
+                                              ),
+                                            ],
+                                          ),
+                                          Row(
+                                            children: [
+                                              TextButton(
+                                                onPressed: () => Navigator.pop(context),
+                                                child: Text('Cancel', style: TextStyle(color: kdarkBlue)),
+                                              ),
+                                              const SizedBox(width: 5),
+                                              ElevatedButton(
+                                                onPressed: () => Navigator.pop(context, tempSelectedDate),
+                                                style: ElevatedButton.styleFrom(
+                                                  backgroundColor: kdarkBlue,
+                                                ),
+                                                child: Text('Save', style: TextStyle(color: kwhite)),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                      );
+                      if (picked != null) {
+                        setState(() {
+                          selectedEndDate = picked;
+                        });
+                      }
+                    },
+                    decoration: InputDecoration(
+                      labelText: selectedEndDate == null ? 'No date' : '',
+                      labelStyle: TextStyle(color: kgrey),
+                      prefixIcon: Icon(Icons.calendar_today_outlined, color: kdarkBlue),
+                      contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide(color: kgrey),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide(color: kgrey),
+                      ),
+                    ),
+                    controller: TextEditingController(
+                      text: selectedEndDate != null 
+                          ? "${selectedEndDate!.day}/${selectedEndDate!.month}/${selectedEndDate!.year}"
+                          : '',
+                    ),
+                  ),
+                ),
+              ],
+            ),
             
             const Spacer(),
             
