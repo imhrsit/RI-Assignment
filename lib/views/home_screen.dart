@@ -140,39 +140,62 @@ class HomeScreen extends StatelessWidget {
           ),
         );
       },
-      child: Container(
-        width: double.infinity,
-        color: kwhite,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                employee.name,
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                  color: Colors.black,
-                ),
+      child: InkWell(
+        onTap: () async {
+          final result = await Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => AddEmployeeDetails(
+                isEditing: true,
+                employee: employee,
               ),
-              const SizedBox(height: 4),
-              Text(
-                employee.role,
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Colors.grey[600],
+            ),
+          );
+          if (result != null) {
+            if (result == 'delete') {
+              context.read<EmployeeBloc>().add(DeleteEmployee(employee));
+            } else if (result is Employee) {
+              context.read<EmployeeBloc>().add(UpdateEmployee(
+                oldEmployee: employee,
+                newEmployee: result,
+              ));
+            }
+          }
+        },
+        child: Container(
+          width: double.infinity,
+          color: kwhite,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  employee.name,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                    color: Colors.black,
+                  ),
                 ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                dateRange,
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Colors.grey[500],
+                const SizedBox(height: 4),
+                Text(
+                  employee.role,
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.grey[600],
+                  ),
                 ),
-              ),
-            ],
+                const SizedBox(height: 4),
+                Text(
+                  dateRange,
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.grey[500],
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),

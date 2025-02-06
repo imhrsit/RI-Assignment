@@ -18,5 +18,13 @@ class EmployeeBloc extends Bloc<EmployeeEvent, EmployeeState> {
       _employees.remove(event.employee);
       emit(EmployeeLoaded(_employees));
     });
+
+    on<UpdateEmployee>((event, emit) {
+      final index = _employees.indexOf(event.oldEmployee);
+      if (index != -1) {
+        _employees[index] = event.newEmployee;
+        emit(EmployeeLoaded(_employees));
+      }
+    });
   }
 }

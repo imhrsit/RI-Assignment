@@ -3,7 +3,14 @@ import 'package:realtime_innovations/global/colors.dart';
 import 'package:realtime_innovations/models/employee.dart';
 
 class AddEmployeeDetails extends StatefulWidget {
-  const AddEmployeeDetails({super.key});
+  final bool isEditing;
+  final Employee? employee;
+
+  const AddEmployeeDetails({
+    super.key,
+    this.isEditing = false,
+    this.employee,
+  });
 
   @override
   State<AddEmployeeDetails> createState() => _AddEmployeeDetailsState();
@@ -14,6 +21,17 @@ class _AddEmployeeDetailsState extends State<AddEmployeeDetails> {
   DateTime? selectedDate;
   DateTime? selectedEndDate;
   final TextEditingController _nameController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.isEditing && widget.employee != null) {
+      _nameController.text = widget.employee!.name;
+      selectedRole = widget.employee!.role;
+      selectedDate = widget.employee!.startDate;
+      selectedEndDate = widget.employee!.endDate;
+    }
+  }
 
   @override
   void dispose() {
@@ -30,10 +48,39 @@ class _AddEmployeeDetailsState extends State<AddEmployeeDetails> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Add Employee Details'),
+        title: Text(widget.isEditing ? 'Edit Employee Details' : 'Add Employee Details'),
         backgroundColor: Colors.blue,
         foregroundColor: Colors.white,
         automaticallyImplyLeading: false,
+        actions: widget.isEditing ? [
+          IconButton(
+            icon: const Icon(Icons.delete_outline),
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return AlertDialog(
+                    title: const Text('Delete Employee'),
+                    content: const Text('Do you want to delete this employee?'),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(context),
+                        child: Text('Cancel', style: TextStyle(color: kdarkBlue)),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          Navigator.pop(context); // Close dialog
+                          Navigator.pop(context, 'delete'); // Return 'delete' to previous screen
+                        },
+                        child: const Text('Delete', style: TextStyle(color: Colors.red)),
+                      ),
+                    ],
+                  );
+                },
+              );
+            },
+          ),
+        ] : null,
       ),
       body: Padding(
         padding: const EdgeInsets.all(20.0),
