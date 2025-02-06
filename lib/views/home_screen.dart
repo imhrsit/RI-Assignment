@@ -11,6 +11,7 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: kwhite.withOpacity(0.9),
       appBar: AppBar(
         title: Text('Employee List',
           style: TextStyle(
@@ -85,7 +86,26 @@ class HomeScreen extends StatelessWidget {
             ),
           ),
         ),
-        ...sectionEmployees.map((employee) => _buildEmployeeCard(employee, context)),
+        ...sectionEmployees.asMap().entries.map((entry) {
+          final isLast = entry.key == sectionEmployees.length - 1;
+          return Column(
+            children: [
+              _buildEmployeeCard(entry.value, context),
+              if (!isLast) const Divider(height: 1, thickness: 1),
+            ],
+          );
+        }),
+        Padding(
+          padding: const EdgeInsets.only(left: 16.0, bottom: 16.0, top: 8.0),
+          child: Text(
+            'Swipe left to delete',
+            style: TextStyle(
+              color: Colors.grey[500],
+              fontSize: 12,
+              fontStyle: FontStyle.italic,
+            ),
+          ),
+        ),
       ],
     );
   }
@@ -95,23 +115,36 @@ class HomeScreen extends StatelessWidget {
     if (employee.endDate != null) {
       dateRange += " - ${_formatDate(employee.endDate!)}";
     }
-
     return Dismissible(
       key: UniqueKey(),
       background: Container(
-        color: Colors.red,
+        color: kred,
         alignment: Alignment.centerRight,
         padding: const EdgeInsets.only(right: 16),
-        child: const Icon(Icons.delete, color: Colors.white),
+        child: Icon(Icons.delete_outline, color: kwhite),
       ),
       direction: DismissDirection.endToStart,
       onDismissed: (direction) {
         context.read<EmployeeBloc>().add(DeleteEmployee(employee));
+        
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('Employee data has been deleted'),
+            action: SnackBarAction(
+              label: 'Undo',
+              textColor: kdarkBlue,
+              onPressed: () {
+                context.read<EmployeeBloc>().add(AddEmployee(employee));
+              },
+            ),
+          ),
+        );
       },
-      child: Card(
-        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: Container(
+        width: double.infinity,
+        color: kwhite,
         child: Padding(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -119,13 +152,15 @@ class HomeScreen extends StatelessWidget {
                 employee.name,
                 style: const TextStyle(
                   fontSize: 16,
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.black,
                 ),
               ),
               const SizedBox(height: 4),
               Text(
                 employee.role,
                 style: TextStyle(
+                  fontSize: 14,
                   color: Colors.grey[600],
                 ),
               ),
@@ -133,7 +168,8 @@ class HomeScreen extends StatelessWidget {
               Text(
                 dateRange,
                 style: TextStyle(
-                  color: Colors.grey[600],
+                  fontSize: 12,
+                  color: Colors.grey[500],
                 ),
               ),
             ],

@@ -5,3 +5,4 @@ Color kdarkBlue = Colors.blue;
 Color kwhite = Colors.white;
 Color kblack = Colors.black;
 Color kgrey = Colors.grey;
+Color kred = Colors.red;
