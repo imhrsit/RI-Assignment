@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:realtime_innovations/global/colors.dart';
+import 'package:realtime_innovations/models/employee.dart';
 
 class AddEmployeeDetails extends StatefulWidget {
   const AddEmployeeDetails({super.key});
@@ -523,7 +524,22 @@ class _AddEmployeeDetailsState extends State<AddEmployeeDetails> {
                 const SizedBox(width: 16),
                 ElevatedButton(
                   onPressed: () {
-                    // Add save logic here
+                    if (_nameController.text.isEmpty || selectedRole == null || selectedDate == null) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Please fill all required fields')),
+                      );
+                      return;
+                    }
+
+                    final employee = Employee(
+                      name: _nameController.text,
+                      role: selectedRole!,
+                      startDate: selectedDate!,
+                      endDate: selectedEndDate,
+                      isFormer: selectedEndDate != null,
+                    );
+
+                    Navigator.pop(context, employee);
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: kdarkBlue,
