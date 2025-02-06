@@ -1,17 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:realtime_innovations/bloc/employee_bloc.dart';
 import 'package:realtime_innovations/global/colors.dart';
 import 'package:realtime_innovations/views/add_employee_details.dart';
 import 'package:realtime_innovations/models/employee.dart';
 
-class HomeScreen extends StatefulWidget {
+class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
-
-  @override
-  State<HomeScreen> createState() => _HomeScreenState();
-}
-
-class _HomeScreenState extends State<HomeScreen> {
-  static List<Employee> employees = [];
 
   @override
   Widget build(BuildContext context) {
@@ -24,8 +19,11 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         backgroundColor: kdarkBlue,
       ),
-      body: employees.isEmpty
-          ? Center(
+      body: BlocBuilder<EmployeeBloc, EmployeeState>(
+        builder: (context, state) {
+          // Show empty state image for both initial and empty loaded states
+          if (state is EmployeeInitial || (state is EmployeeLoaded && state.employees.isEmpty)) {
+            return Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -36,15 +34,24 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ],
               ),
-            )
-          : ListView(
+            );
+          }
+          
+          if (state is EmployeeLoaded) {
+            final employees = state.employees;
+            return ListView(
               children: [
                 _buildEmployeeSection('Current employees', 
-                    employees.where((e) => !e.isFormer).toList()),
+                    employees.where((e) => !e.isFormer).toList(), context),
                 _buildEmployeeSection('Previous employees', 
-                    employees.where((e) => e.isFormer).toList()),
+                    employees.where((e) => e.isFormer).toList(), context),
               ],
-            ),
+            );
+          }
+          
+          return const Center(child: CircularProgressIndicator());
+        },
+      ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
           final result = await Navigator.push(
@@ -52,9 +59,7 @@ class _HomeScreenState extends State<HomeScreen> {
             MaterialPageRoute(builder: (context) => const AddEmployeeDetails()),
           );
           if (result != null && result is Employee) {
-            setState(() {
-              employees.add(result);
-            });
+            context.read<EmployeeBloc>().add(AddEmployee(result));
           }
         },
         backgroundColor: kdarkBlue,
@@ -63,7 +68,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildEmployeeSection(String title, List<Employee> sectionEmployees) {
+  Widget _buildEmployeeSection(String title, List<Employee> sectionEmployees, BuildContext context) {
     if (sectionEmployees.isEmpty) return const SizedBox.shrink();
 
     return Column(
@@ -80,12 +85,12 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
         ),
-        ...sectionEmployees.map((employee) => _buildEmployeeCard(employee)),
+        ...sectionEmployees.map((employee) => _buildEmployeeCard(employee, context)),
       ],
     );
   }
 
-  Widget _buildEmployeeCard(Employee employee) {
+  Widget _buildEmployeeCard(Employee employee, BuildContext context) {
     String dateRange = "${_formatDate(employee.startDate)}";
     if (employee.endDate != null) {
       dateRange += " - ${_formatDate(employee.endDate!)}";
@@ -101,9 +106,7 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       direction: DismissDirection.endToStart,
       onDismissed: (direction) {
-        setState(() {
-          employees.remove(employee);
-        });
+        context.read<EmployeeBloc>().add(DeleteEmployee(employee));
       },
       child: Card(
         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
