@@ -17,8 +17,17 @@ class HomeScreen extends StatelessWidget {
         backgroundColor: kdarkBlue,
 
       ),
-      body: const Center(
-        child: Text('No employee records found!'),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Image.asset(
+              'assets/image.png',  // Replace with your actual image path
+              height: 200,  // Adjust size as needed
+              width: 200,
+            ),
+          ],
+        ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {

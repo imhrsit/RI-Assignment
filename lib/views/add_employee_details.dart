@@ -430,7 +430,7 @@ class _AddEmployeeDetailsState extends State<AddEmployeeDetails> {
                                               ),
                                               const SizedBox(width: 5),
                                               Text(
-                                                "${tempSelectedDate!.day}/${tempSelectedDate!.month}/${tempSelectedDate!.year}",
+                                                selectedEndDate == null ? "No date" : "${tempSelectedDate!.day}/${tempSelectedDate!.month}/${tempSelectedDate!.year}",
                                                 style: TextStyle(color: kdarkBlue),
                                               ),
                                             ],
