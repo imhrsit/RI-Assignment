@@ -13,7 +13,11 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => EmployeeBloc(),
+      create: (context) {
+        final bloc = EmployeeBloc();
+        bloc.add(LoadEmployees());
+        return bloc;
+      },
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
         title: 'Realtime Innovations',
