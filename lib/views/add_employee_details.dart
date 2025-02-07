@@ -23,15 +23,17 @@ class _AddEmployeeDetailsState extends State<AddEmployeeDetails> {
   final TextEditingController _nameController = TextEditingController();
 
   @override
-  void initState() {
-    super.initState();
-    if (widget.isEditing && widget.employee != null) {
-      _nameController.text = widget.employee!.name;
-      selectedRole = widget.employee!.role;
-      selectedDate = widget.employee!.startDate;
-      selectedEndDate = widget.employee!.endDate;
-    }
+void initState() {
+  super.initState();
+  if (widget.isEditing && widget.employee != null) {
+    _nameController.text = widget.employee!.name;
+    selectedRole = widget.employee!.role;
+    selectedDate = widget.employee!.startDate;
+    selectedEndDate = widget.employee!.endDate;
+  } else {
+    selectedDate = DateTime.now(); // Default to today for new employees
   }
+}
 
   @override
   void dispose() {
@@ -43,6 +45,14 @@ class _AddEmployeeDetailsState extends State<AddEmployeeDetails> {
     DateTime now = DateTime.now();
     return now.add(Duration(days: (DateTime.monday - now.weekday + 7) % 7));
   }
+
+  String _getDisplayDate(DateTime? date) {
+  if (date == null) return '';
+  final now = DateTime.now();
+  final today = DateTime(now.year, now.month, now.day);
+  final inputDate = DateTime(date.year, date.month, date.day);
+  return inputDate == today ? 'Today' : "${date.day}/${date.month}/${date.year}";
+}
 
   @override
   Widget build(BuildContext context) {
@@ -333,7 +343,7 @@ class _AddEmployeeDetailsState extends State<AddEmployeeDetails> {
                       }
                     },
                     decoration: InputDecoration(
-                      labelText: selectedDate == null ? 'Today' : '',
+                      labelText: '',
                       prefixIcon: Icon(Icons.calendar_today_outlined, color: kdarkBlue),
                       contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
                       border: OutlineInputBorder(
@@ -349,9 +359,7 @@ class _AddEmployeeDetailsState extends State<AddEmployeeDetails> {
                       ),
                     ),
                     controller: TextEditingController(
-                      text: selectedDate != null 
-                          ? "${selectedDate!.day}/${selectedDate!.month}/${selectedDate!.year}"
-                          : '',
+                      text: _getDisplayDate(selectedDate),
                     ),
                   ),
                 ),
@@ -484,7 +492,7 @@ class _AddEmployeeDetailsState extends State<AddEmployeeDetails> {
                       }
                     },
                     decoration: InputDecoration(
-                      labelText: selectedEndDate == null ? 'No date' : '',
+                      labelText: '',
                       labelStyle: TextStyle(color: kgrey),
                       prefixIcon: Icon(Icons.calendar_today_outlined, color: kdarkBlue),
                       contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
@@ -502,8 +510,13 @@ class _AddEmployeeDetailsState extends State<AddEmployeeDetails> {
                     ),
                     controller: TextEditingController(
                       text: selectedEndDate != null 
-                          ? "${selectedEndDate!.day}/${selectedEndDate!.month}/${selectedEndDate!.year}"
-                          : '',
+                          ? _getDisplayDate(selectedEndDate)
+                          : 'No date',
+                    ),
+                    style: TextStyle(
+                      color: selectedEndDate == null && _getDisplayDate(selectedEndDate).isEmpty 
+                          ? kgrey 
+                          : Colors.black
                     ),
                   ),
                 ),
