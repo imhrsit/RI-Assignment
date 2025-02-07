@@ -375,6 +375,22 @@ class _AddEmployeeDetailsState extends State<AddEmployeeDetails> {
                                     children: [
                                       TextButton(
                                         onPressed: () {
+                                          setState(() {
+                                            selectedEndDate = null;
+                                          });
+                                          Navigator.pop(context, null);  // Return null for No date
+                                        },
+                                        style: TextButton.styleFrom(
+                                          backgroundColor: Colors.blue.shade50,
+                                          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(8),
+                                          ),
+                                        ),
+                                        child: Text('No date', style: TextStyle(color: kdarkBlue)),
+                                      ),
+                                      TextButton(
+                                        onPressed: () {
                                           tempSelectedDate = DateTime.now();
                                           Navigator.pop(context, tempSelectedDate);
                                         },
@@ -387,56 +403,8 @@ class _AddEmployeeDetailsState extends State<AddEmployeeDetails> {
                                         ),
                                         child: Text('Today', style: TextStyle(color: kdarkBlue)),
                                       ),
-                                      TextButton(
-                                        onPressed: () {
-                                          tempSelectedDate = getNextMonday();
-                                          Navigator.pop(context, tempSelectedDate);
-                                        },
-                                        style: TextButton.styleFrom(
-                                          backgroundColor: Colors.blue.shade50,
-                                          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(8),
-                                          ),
-                                        ),
-                                        child: Text('Next Monday', style: TextStyle(color: kdarkBlue)),
-                                      ),
                                     ],
                                   ),
-                                ),
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                  children: [
-                                    TextButton(
-                                      onPressed: () {
-                                        final now = DateTime.now();
-                                        tempSelectedDate = now.add(const Duration(days: ((DateTime.tuesday - 1 + 7) % 7) + 7));
-                                        Navigator.pop(context, tempSelectedDate);
-                                      },
-                                      style: TextButton.styleFrom(
-                                        backgroundColor: Colors.blue.shade50,
-                                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(8),
-                                        ),
-                                      ),
-                                      child: Text('Next Tuesday', style: TextStyle(color: kdarkBlue)),
-                                    ),
-                                    TextButton(
-                                      onPressed: () {
-                                        tempSelectedDate = DateTime.now().add(const Duration(days: 7));
-                                        Navigator.pop(context, tempSelectedDate);
-                                      },
-                                      style: TextButton.styleFrom(
-                                        backgroundColor: Colors.blue.shade50,
-                                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(8),
-                                        ),
-                                      ),
-                                      child: Text('After 1 week', style: TextStyle(color: kdarkBlue)),
-                                    ),
-                                  ],
                                 ),
                                 SizedBox(
                                   height: 400,
